@@ -16,8 +16,8 @@
 - Legajo: **Uriel Granero Ganem**
 - Nombre: **2037063**
 
-- Legajo: **Completar**
-- Nombre: **Completar**
+- Legajo: **Damaris Garcia**
+- Nombre: **1761596**
 
 
 ## El enunciado
