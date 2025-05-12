@@ -1,10 +1,11 @@
 module Library where
 import PdePreludat
 import GHC.Stack (HasCallStack)
+import GHC.Generics (prec)
 
 
 data Ingrediente =
-    Carne | Pan | Panceta | Cheddar | Pollo | Curry | QuesoDeAlmendras | Papa | BaconDeTofu |PatiVegano
+    Carne | Pan | Panceta | Cheddar | Pollo | Curry | QuesoDeAlmendras | Papa | BaconDeTofu | PatiVegano | PanIntegral
     deriving (Eq, Show)
 
 precioIngrediente Carne = 20
@@ -17,6 +18,7 @@ precioIngrediente QuesoDeAlmendras = 15
 precioIngrediente Papa = 10
 precioIngrediente BaconDeTofu = 12
 precioIngrediente PatiVegano = 10
+precioIngrediente PanIntegral = 3
 
 data Hamburguesa = Hamburguesa {
     precioBase :: Number,
@@ -56,7 +58,7 @@ pdepBurger = descuento 20 . agregarIngrediente Cheddar . agregarIngrediente Panc
 
 --Parte 2
 dobleCuarto:: Hamburguesa
-dobleCuarto = (agregarIngrediente Cheddar . agregarIngrediente Carne)cuartoDeLibra
+dobleCuarto = agregarIngrediente Cheddar . agregarIngrediente Carne $ cuartoDeLibra
 
 bigPdep:: Hamburguesa
 bigPdep = agregarIngrediente Curry dobleCuarto
@@ -67,7 +69,7 @@ delDia= descuento 30 . agregarIngrediente Papa
 --Parte 3
 
 hacerVeggie :: Hamburguesa -> Hamburguesa
-hacerVeggie burga = burga {ingredientes = map cambioIngrsVeggie $ ingredientes burga }
+hacerVeggie burga = burga {ingredientes = map cambioIngrsVeggie $ ingredientes burga}
 
 cambioIngrsVeggie :: Ingrediente -> Ingrediente
 cambioIngrsVeggie ingr
@@ -76,3 +78,13 @@ cambioIngrsVeggie ingr
     | ingr == Panceta = BaconDeTofu
     | otherwise = ingr
 
+cambiarPanDePati :: Hamburguesa -> Hamburguesa
+cambiarPanDePati burga = burga {ingredientes = map cambioPanIntegral $ ingredientes burga}
+
+cambioPanIntegral :: Ingrediente -> Ingrediente
+cambioPanIntegral ingr
+    | ingr == Pan = PanIntegral
+    | otherwise = ingr
+
+dobleCuartoVegano :: Hamburguesa
+dobleCuartoVegano = cambiarPanDePati . hacerVeggie $ dobleCuarto
