@@ -1,9 +1,10 @@
 module Library where
 import PdePreludat
+import GHC.Stack (HasCallStack)
 
 
 data Ingrediente =
-    Carne | Pan | Panceta | Cheddar | Pollo | Curry | QuesoDeAlmendras | Papa
+    Carne | Pan | Panceta | Cheddar | Pollo | Curry | QuesoDeAlmendras | Papa | BaconDeTofu |PatiVegano
     deriving (Eq, Show)
 
 precioIngrediente Carne = 20
@@ -14,6 +15,8 @@ precioIngrediente Pollo =  10
 precioIngrediente Curry = 5
 precioIngrediente QuesoDeAlmendras = 15
 precioIngrediente Papa = 10
+precioIngrediente BaconDeTofu = 12
+precioIngrediente PatiVegano = 10
 
 data Hamburguesa = Hamburguesa {
     precioBase :: Number,
@@ -21,13 +24,17 @@ data Hamburguesa = Hamburguesa {
 } deriving (Eq, Show)
 
 --Parte 1
-precioFinal (Hamburguesa precioBase ingredientes) = precioBase + (sum . map precioIngrediente)ingredientes
+precioFinal :: Hamburguesa -> Number
+precioFinal burga = precioBase burga + sumatoriaIngredientes burga
 
+sumatoriaIngredientes :: Hamburguesa -> Number
+sumatoriaIngredientes burga = sum . map precioIngrediente $ ingredientes burga
 
-agrandar::  Hamburguesa -> Hamburguesa
+agrandar ::  Hamburguesa -> Hamburguesa
 agrandar hamburguesa
  |any(== Carne) (ingredientes hamburguesa) = agregarIngrediente Carne hamburguesa
  |any(== Pollo) (ingredientes hamburguesa) = agregarIngrediente Pollo hamburguesa
+ |any(== PatiVegano) (ingredientes hamburguesa) = agregarIngrediente PatiVegano hamburguesa
  |otherwise = hamburguesa
 
 
@@ -44,16 +51,28 @@ descuento porcentaje hamburguesa = hamburguesa{
 cuartoDeLibra :: Hamburguesa
 cuartoDeLibra = Hamburguesa 20 [Pan, Carne, Cheddar, Pan]
 
-
 pdepBurger:: Hamburguesa
-pdepBurger=(descuento 20.agregarIngrediente Cheddar . agregarIngrediente Panceta .agrandar.agrandar)cuartoDeLibra
+pdepBurger = descuento 20 . agregarIngrediente Cheddar . agregarIngrediente Panceta . agrandar . agrandar $ cuartoDeLibra
 
 --Parte 2
 dobleCuarto:: Hamburguesa
-dobleCuarto = (agregarIngrediente Cheddar .agregarIngrediente Carne)cuartoDeLibra
+dobleCuarto = (agregarIngrediente Cheddar . agregarIngrediente Carne)cuartoDeLibra
 
 bigPdep:: Hamburguesa
 bigPdep = agregarIngrediente Curry dobleCuarto
 
 delDia:: Hamburguesa -> Hamburguesa
 delDia= descuento 30 . agregarIngrediente Papa
+
+--Parte 3
+
+hacerVeggie :: Hamburguesa -> Hamburguesa
+hacerVeggie burga = burga {ingredientes = map cambioIngrsVeggie $ ingredientes burga }
+
+cambioIngrsVeggie :: Ingrediente -> Ingrediente
+cambioIngrsVeggie ingr
+    | ingr == Carne || ingr == Pollo = PatiVegano
+    | ingr == Cheddar = QuesoDeAlmendras
+    | ingr == Panceta = BaconDeTofu
+    | otherwise = ingr
+
